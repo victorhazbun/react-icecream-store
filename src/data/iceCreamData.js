@@ -12,3 +12,11 @@ export const getMenu = async () => {
     return 0;
   }); 
 }
+
+export const getMenuItem = id => {
+  return axios.get(`/api/menu/${id}`)
+  .then(response => response.data)
+  .catch(error => {
+    throw error;
+  })
+}
