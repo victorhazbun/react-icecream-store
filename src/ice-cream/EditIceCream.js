@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Helmet from 'react-helmet';
 import LoaderMessage from '../structure/LoaderMessage';
 import { getMenuItem, putMenuItem } from '../data/iceCreamData';
 import PropTypes from 'prop-types';
 import IceCreamImage from './IceCreamImage';
 import useUniqueIds from '../hooks/useUniqueIds';
+import Main from '../structure/Main';
 import '../styles/forms-spacer.scss';
 
 const EditIceCream = ({ match, history }) => {
@@ -14,7 +14,7 @@ const EditIceCream = ({ match, history }) => {
     inStock: true,
     quantity: '0',
     description: '',
-    iceCream: { id: 0 }
+    iceCream: { id: 0 },
   });
   const [isLoading, setIsLoading] = useState(false);
   const [descriptionId, stockId, quantityId, priceId] = useUniqueIds(4);
@@ -22,13 +22,13 @@ const EditIceCream = ({ match, history }) => {
   useEffect(() => {
     return () => {
       isMounted.current = false;
-    }
+    };
   }, []);
-  
+
   useEffect(() => {
     setIsLoading(true);
-    getMenuItem(match.params.menuItemId).then(
-      ({ id, price, inStock, quantity, description, iceCream }) => {
+    getMenuItem(match.params.menuItemId)
+      .then(({ id, price, inStock, quantity, description, iceCream }) => {
         if (isMounted.current) {
           setMenuItem({
             id,
@@ -36,24 +36,24 @@ const EditIceCream = ({ match, history }) => {
             inStock,
             quantity: quantity.toString(),
             description,
-            iceCream
+            iceCream,
           });
           setIsLoading(false);
         }
-      }
-    )
-    .catch(error => {
-      if (error.response.status === 404 && isMounted.current) {
-        history.replace("/");
-      }
-    });
+      })
+      .catch(error => {
+        if (error.response.status === 404 && isMounted.current) {
+          history.replace('/', { focus: true });
+        }
+      });
   }, [match.params.menuItemId, history]);
 
   const onChangeHandler = e => {
     let newMenuItemData = {
       ...menuItem,
-      [e.target.name]: e.target.type === 'checkbox' ? e.target.checked : e.target.value
-    }
+      [e.target.name]:
+        e.target.type === 'checkbox' ? e.target.checked : e.target.value,
+    };
 
     if (e.target.name === 'quantity') {
       newMenuItemData.inStock = e.target.value !== '0';
@@ -69,33 +69,29 @@ const EditIceCream = ({ match, history }) => {
   const onSubmitHandler = e => {
     e.preventDefault();
 
-    const {id, price, inStock, quantity, description, iceCream} = menuItem;
+    const { id, price, inStock, quantity, description, iceCream } = menuItem;
     const submitItem = {
       id,
-      iceCream: {id: iceCream.id},
+      iceCream: { id: iceCream.id },
       price: parseFloat(price),
       inStock,
       quantity: parseInt(quantity),
-      description
-    }
-    
+      description,
+    };
+
     putMenuItem(submitItem).then(() => {
-      history.push('/');
+      history.push('/', { focus: true });
     });
   };
 
   return (
-    <main>
-      <Helmet>
-        <title>Edit Ice Cream</title>
-      </Helmet>
-      <h2 className="main-heading">Edit Ice Cream</h2>
+    <Main headingText="Edit Ice Cream">
       <LoaderMessage
         loadingMessage="Loading ice cream"
         doneMessage="Ice cream loaded."
-        isLoading={isLoading} 
+        isLoading={isLoading}
       />
-      {!isLoading && 
+      {!isLoading && (
         <div className="form-frame">
           <div className="image-container">
             <IceCreamImage iceCreamId={menuItem.iceCream.id} />
@@ -107,14 +103,31 @@ const EditIceCream = ({ match, history }) => {
             </dl>
             <form onSubmit={onSubmitHandler}>
               <label htmlFor={descriptionId}>Description:</label>
-              <textarea id={descriptionId} name="description" rows="1" value={menuItem.description} onChange={onChangeHandler}/>
+              <textarea
+                id={descriptionId}
+                name="description"
+                rows="1"
+                value={menuItem.description}
+                onChange={onChangeHandler}
+              />
               <label htmlFor={stockId}>In Stock:</label>
               <div className="checkbox-wrapper">
-                <input id={stockId} type="checkbox" name="inStock" checked={menuItem.inStock} onChange={onChangeHandler} />
+                <input
+                  id={stockId}
+                  type="checkbox"
+                  name="inStock"
+                  checked={menuItem.inStock}
+                  onChange={onChangeHandler}
+                />
                 <div className="checkbox-wrapper-checked" />
               </div>
               <label htmlFor={quantityId}>Quantity:</label>
-              <select id={quantityId} name="quantity" value={menuItem.quantity} onChange={onChangeHandler}>
+              <select
+                id={quantityId}
+                name="quantity"
+                value={menuItem.quantity}
+                onChange={onChangeHandler}
+              >
                 <option value="0">0</option>
                 <option value="10">10</option>
                 <option value="20">20</option>
@@ -123,7 +136,14 @@ const EditIceCream = ({ match, history }) => {
                 <option value="50">50</option>
               </select>
               <label htmlFor={priceId}>Price:</label>
-              <input id={priceId} type="number" step="0.01" name="price" value={menuItem.price} onChange={onChangeHandler}/>
+              <input
+                id={priceId}
+                type="number"
+                step="0.01"
+                name="price"
+                value={menuItem.price}
+                onChange={onChangeHandler}
+              />
               <div className="button-container">
                 <button className="ok" type="submit">
                   Update
@@ -132,19 +152,19 @@ const EditIceCream = ({ match, history }) => {
             </form>
           </div>
         </div>
-      }
-    </main>
-  )
+      )}
+    </Main>
+  );
 };
 
 EditIceCream.propTypes = {
   match: PropTypes.shape({
-    params: PropTypes.object.isRequired
+    params: PropTypes.object.isRequired,
   }),
   history: PropTypes.shape({
     push: PropTypes.func.isRequired,
-    replace: PropTypes.func.isRequired
-  })
+    replace: PropTypes.func.isRequired,
+  }),
 };
 
 export default EditIceCream;

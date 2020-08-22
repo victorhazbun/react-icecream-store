@@ -19,7 +19,7 @@ const LoaderMessage = ({loadingMessage, doneMessage, isLoading}) => {
         setShowDoneMessage(true);
         doneMessageDelay = setTimeout(() => {
           setShowDoneMessage(false);
-        }, 300); 
+        }, 300);
       }
     }
 
