@@ -15,7 +15,9 @@ const FocusLink = ({ to, children, activeClassName, ...props }) => {
       {children}
     </NavLink>
   ) : (
-    <Link {...props}>{children}</Link>
+    <Link to={newTo} {...props}>
+      {children}
+    </Link>
   );
 };
 

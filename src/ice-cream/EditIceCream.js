@@ -4,7 +4,13 @@ import { getMenuItem, putMenuItem } from '../data/iceCreamData';
 import PropTypes from 'prop-types';
 import IceCreamImage from './IceCreamImage';
 import useUniqueIds from '../hooks/useUniqueIds';
+import useValidation from '../hooks/useValidation';
 import Main from '../structure/Main';
+import {
+  validatePrice,
+  validateDescription,
+  validateQuantity,
+} from '../utils/validators';
 import '../styles/forms-spacer.scss';
 
 const EditIceCream = ({ match, history }) => {
@@ -18,6 +24,16 @@ const EditIceCream = ({ match, history }) => {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [descriptionId, stockId, quantityId, priceId] = useUniqueIds(4);
+  const descriptionError = useValidation(
+    menuItem.description,
+    validateDescription
+  );
+  const quantityError = useValidation(
+    menuItem.quantity,
+    validateQuantity,
+    menuItem.inStock
+  );
+  const priceError = useValidation(menuItem.price, validatePrice);
 
   useEffect(() => {
     return () => {
@@ -69,19 +85,23 @@ const EditIceCream = ({ match, history }) => {
   const onSubmitHandler = e => {
     e.preventDefault();
 
-    const { id, price, inStock, quantity, description, iceCream } = menuItem;
-    const submitItem = {
-      id,
-      iceCream: { id: iceCream.id },
-      price: parseFloat(price),
-      inStock,
-      quantity: parseInt(quantity),
-      description,
-    };
+    console.log(descriptionError, quantityError, priceError);
 
-    putMenuItem(submitItem).then(() => {
-      history.push('/', { focus: true });
-    });
+    if (!descriptionError && !quantityError && !priceError) {
+      const { id, price, inStock, quantity, description, iceCream } = menuItem;
+      const submitItem = {
+        id,
+        iceCream: { id: iceCream.id },
+        price: parseFloat(price),
+        inStock,
+        quantity: parseInt(quantity),
+        description,
+      };
+
+      putMenuItem(submitItem).then(() => {
+        history.push('/', { focus: true });
+      });
+    }
   };
 
   return (
